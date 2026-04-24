@@ -1,0 +1,109 @@
+/* ============================================================
+   public/css/style.css
+   Feuille de style personnalisée — Gestion de stock MVC
+   Complète Bootstrap 5 sans le remplacer
+   ============================================================ */
+
+/* ── Variables ── */
+:root {
+    --bs-body-bg: #f4f6fb;
+    --app-sidebar-w: 0px;
+}
+
+/* ── Corps ── */
+body {
+    background-color: var(--bs-body-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.container-fluid {
+    flex: 1;
+}
+
+/* ── Navbar ── */
+.navbar-brand span:first-of-type {
+    letter-spacing: -.5px;
+}
+
+/* ── Cartes ── */
+.card {
+    border-radius: .75rem;
+}
+
+.card-header {
+    border-radius: .75rem .75rem 0 0 !important;
+    padding: .9rem 1.25rem;
+}
+
+/* ── Tableau ── */
+.table > :not(caption) > * > * {
+    padding: .85rem .75rem;
+}
+
+.table tbody tr {
+    transition: background .15s;
+}
+
+/* ── Badges ── */
+.badge {
+    font-weight: 500;
+    letter-spacing: .02em;
+}
+
+/* ── Boutons ── */
+.btn {
+    border-radius: .5rem;
+    font-weight: 500;
+}
+
+.btn-group .btn {
+    border-radius: .375rem;
+}
+
+/* ── Formulaires ── */
+.form-control, .form-select {
+    border-radius: .5rem;
+    border-color: #dee2e6;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
+}
+
+/* ── Input group ── */
+.input-group-text {
+    border-radius: .5rem;
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* ── Footer ── */
+footer {
+    font-size: .85rem;
+    border-top: 3px solid #0d6efd;
+}
+
+/* ── Encadré pédagogique ── */
+.alert-info {
+    background: #e7f1ff;
+    border-color: #b8d4ff;
+    border-radius: .75rem;
+}
+
+/* ── Animation des alertes flash ── */
+.alert {
+    border-radius: .75rem;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* ── Responsive ── */
+@media (max-width: 576px) {
+    .table-responsive {
+        font-size: .875rem;
+    }
+}
