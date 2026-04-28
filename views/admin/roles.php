@@ -4,93 +4,93 @@ $pageTitle   = 'Rôles & Permissions';
 $activeRoute = 'admin.roles';
 ob_start();
 ?>
-    <div class="page-header flex justify-between items-center">
-        <div><h1>Rôles & Permissions</h1><p>Définissez les rôles et leurs droits d'accès</p></div>
-        <button class="btn btn-primary" onclick="document.getElementById('modal-new-role').classList.add('open')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Nouveau rôle
-        </button>
-    </div>
+<div class="page-header flex justify-between items-center">
+  <div><h1>Rôles & Permissions</h1><p>Définissez les rôles et leurs droits d'accès</p></div>
+  <button class="btn btn-primary" onclick="document.getElementById('modal-new-role').classList.add('open')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    Nouveau rôle
+  </button>
+</div>
 
-    <div style="display:flex; flex-direction:column; gap:20px;">
-        <?php foreach ($roles as $role):
-            $rolePerms = (new RoleModel())->getPermissionsForRole($role['id']);
-            ?>
-            <div class="card">
-                <div class="card-header">
-                    <div class="flex items-center gap-3">
-                        <span class="card-title"><?= e($role['label']) ?></span>
-                        <span class="badge badge-gray text-xs"><?= e($role['nom']) ?></span>
-                        <?php if ($role['est_systeme']): ?>
-                            <span class="badge badge-amber">Système</span>
-                        <?php endif; ?>
-                    </div>
-                    <?php if (!$role['est_systeme']): ?>
-                        <button class="btn btn-danger btn-sm" onclick="deleteRole(<?= $role['id'] ?>, '<?= e($role['label']) ?>')">Supprimer</button>
-                    <?php endif; ?>
-                </div>
-                <div class="card-body">
-                    <div class="perm-grid">
-                        <?php foreach ($permissions as $perm): ?>
-                            <label class="perm-item">
-                                <input type="checkbox"
-                                       name="perm_<?= $role['id'] ?>_<?= $perm['id'] ?>"
-                                       value="<?= e($perm['code']) ?>"
-                                        <?= in_array($perm['code'], $rolePerms) ? 'checked' : '' ?>>
-                                <div>
-                                    <div class="perm-item-label"><?= e($perm['label']) ?></div>
-                                    <div class="perm-item-desc"><?= e($perm['description'] ?? '') ?></div>
-                                </div>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                    <div class="flex gap-2 mt-4" style="justify-content:flex-end;">
-                        <button class="btn btn-primary btn-sm" onclick="savePerms(<?= $role['id'] ?>)">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                            Sauvegarder les permissions
-                        </button>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
+<div style="display:flex; flex-direction:column; gap:20px;">
+<?php foreach ($roles as $role):
+  $rolePerms = (new RoleModel())->getPermissionsForRole($role['id']);
+?>
+<div class="card">
+  <div class="card-header">
+    <div class="flex items-center gap-3">
+      <span class="card-title"><?= e($role['label']) ?></span>
+      <span class="badge badge-gray text-xs"><?= e($role['nom']) ?></span>
+      <?php if ($role['est_systeme']): ?>
+      <span class="badge badge-amber">Système</span>
+      <?php endif; ?>
     </div>
-
-    <!-- MODAL NOUVEAU RÔLE -->
-    <div class="modal-overlay" id="modal-new-role">
-        <div class="modal">
-            <div class="modal-header">
-                <span class="modal-title">Nouveau rôle</span>
-                <button class="modal-close" onclick="this.closest('.modal-overlay').classList.remove('open')">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Nom (identifiant technique)</label>
-                    <input type="text" class="form-control" id="nr-nom" placeholder="ex: infirmier_senior">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Libellé (affiché)</label>
-                    <input type="text" class="form-control" id="nr-label" placeholder="ex: Infirmier Senior">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Permissions initiales</label>
-                    <div class="perm-grid" id="nr-perms">
-                        <?php foreach ($permissions as $perm): ?>
-                            <label class="perm-item">
-                                <input type="checkbox" name="nr_perm" value="<?= e($perm['code']) ?>">
-                                <div>
-                                    <div class="perm-item-label"><?= e($perm['label']) ?></div>
-                                </div>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="flex gap-2" style="justify-content:flex-end; margin-top:8px;">
-                    <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').classList.remove('open')">Annuler</button>
-                    <button class="btn btn-primary" onclick="createRole()">Créer le rôle</button>
-                </div>
-            </div>
+    <?php if (!$role['est_systeme']): ?>
+    <button class="btn btn-danger btn-sm" onclick="deleteRole(<?= $role['id'] ?>, '<?= e($role['label']) ?>')">Supprimer</button>
+    <?php endif; ?>
+  </div>
+  <div class="card-body">
+    <div class="perm-grid">
+    <?php foreach ($permissions as $perm): ?>
+      <label class="perm-item">
+        <input type="checkbox"
+          name="perm_<?= $role['id'] ?>_<?= $perm['id'] ?>"
+          value="<?= e($perm['code']) ?>"
+          <?= in_array($perm['code'], $rolePerms) ? 'checked' : '' ?>>
+        <div>
+          <div class="perm-item-label"><?= e($perm['label']) ?></div>
+          <div class="perm-item-desc"><?= e($perm['description'] ?? '') ?></div>
         </div>
+      </label>
+    <?php endforeach; ?>
     </div>
+    <div class="flex gap-2 mt-4" style="justify-content:flex-end;">
+      <button class="btn btn-primary btn-sm" onclick="savePerms(<?= $role['id'] ?>)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Sauvegarder les permissions
+      </button>
+    </div>
+  </div>
+</div>
+<?php endforeach; ?>
+</div>
+
+<!-- MODAL NOUVEAU RÔLE -->
+<div class="modal-overlay" id="modal-new-role">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Nouveau rôle</span>
+      <button class="modal-close" onclick="this.closest('.modal-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nom (identifiant technique)</label>
+        <input type="text" class="form-control" id="nr-nom" placeholder="ex: infirmier_senior">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Libellé (affiché)</label>
+        <input type="text" class="form-control" id="nr-label" placeholder="ex: Infirmier Senior">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Permissions initiales</label>
+        <div class="perm-grid" id="nr-perms">
+        <?php foreach ($permissions as $perm): ?>
+          <label class="perm-item">
+            <input type="checkbox" name="nr_perm" value="<?= e($perm['code']) ?>">
+            <div>
+              <div class="perm-item-label"><?= e($perm['label']) ?></div>
+            </div>
+          </label>
+        <?php endforeach; ?>
+        </div>
+      </div>
+      <div class="flex gap-2" style="justify-content:flex-end; margin-top:8px;">
+        <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').classList.remove('open')">Annuler</button>
+        <button class="btn btn-primary" onclick="createRole()">Créer le rôle</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <?php
 $extraScript = <<<'JS'
