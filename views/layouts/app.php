@@ -96,8 +96,25 @@
           <?= e($flash['msg']) ?>
         </div>
         <?php endif; ?>
-        <div class="topbar-avatar" title="<?= e($_SESSION['user']['username']) ?>">
-          <?= strtoupper(substr($_SESSION['user']['prenom'], 0, 1) . substr($_SESSION['user']['nom'], 0, 1)) ?>
+        <div class="topbar-avatar-wrap" style="position:relative;">
+          <div class="topbar-avatar" id="avatar-btn" title="<?= e($_SESSION['user']['username']) ?>" onclick="toggleAvatarMenu()" style="cursor:pointer;">
+            <?= strtoupper(substr($_SESSION['user']['prenom'], 0, 1) . substr($_SESSION['user']['nom'], 0, 1)) ?>
+          </div>
+          <div id="avatar-menu" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow-md);min-width:210px;z-index:300;overflow:hidden;">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--gray-100);">
+              <div style="font-weight:700;font-size:.9rem;"><?= e($_SESSION['user']['prenom'] . ' ' . $_SESSION['user']['nom']) ?></div>
+              <div style="font-size:.75rem;color:var(--gray-500);"><?= e($_SESSION['user']['username']) ?></div>
+              <span class="badge badge-blue" style="margin-top:6px;"><?= e($_SESSION['user']['role_label']) ?></span>
+            </div>
+            <a href="?route=settings" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--gray-700);font-size:.875rem;font-weight:600;transition:background .15s;" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background=''">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+              Paramètres
+            </a>
+            <a href="?route=logout" style="display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--red);font-size:.875rem;font-weight:600;border-top:1px solid var(--gray-100);transition:background .15s;" onmouseover="this.style.background='#FEF2F2'" onmouseout="this.style.background=''">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Déconnexion
+            </a>
+          </div>
         </div>
       </div>
     </header>
@@ -142,6 +159,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     document.getElementById(target)?.classList.add('active');
   });
+});
+
+// Avatar dropdown menu
+function toggleAvatarMenu() {
+  const menu = document.getElementById('avatar-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  const wrap = document.querySelector('.topbar-avatar-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const menu = document.getElementById('avatar-menu');
+    if (menu) menu.style.display = 'none';
+  }
 });
 </script>
 <?php if (!empty($extraScript)) echo $extraScript; ?>

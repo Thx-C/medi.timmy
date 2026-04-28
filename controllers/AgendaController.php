@@ -4,8 +4,14 @@
 class AgendaController {
 
     public function index(): void {
-        $praticiens = (new UserModel())->getPraticiens();
-        $patients   = (new PatientModel())->getAll();
+        // Patient : listes vides (lecture seule, pas de création de RDV)
+        if ($_SESSION['user']['role_nom'] === 'patient') {
+            $praticiens = [];
+            $patients   = [];
+        } else {
+            $praticiens = (new UserModel())->getPraticiens();
+            $patients   = (new PatientModel())->getAll();
+        }
         view('agenda/index', compact('praticiens', 'patients'));
     }
 
@@ -13,30 +19,38 @@ class AgendaController {
     public function events(): void {
         header('Content-Type: application/json');
         $model = new RendezVousModel();
+
+        // Patient : uniquement SES propres RDV, jamais ceux des autres
         if ($_SESSION['user']['role_nom'] === 'patient') {
-            $pm = new PatientModel();
-            $patient = $pm->findByUserId($_SESSION['user']['id']);
-            $events  = $patient ? $model->getForCalendar() : [];
-            // Filtre que les events du patient
-            $patientId = $patient['id'];
-            $events = array_filter($events, fn($e) => str_contains($e['extendedProps']['patient'] ?? '', ''));
-            // Recalcule depuis getForPatient
-            $rows = $model->getForPatient($patientId);
+            $patient = (new PatientModel())->findByUserId($_SESSION['user']['id']);
+            if (!$patient) { echo json_encode([]); exit; }
+
             $events = [];
-            foreach ($rows as $rv) {
+            foreach ($model->getForPatient($patient['id']) as $rv) {
                 $events[] = [
                     'id'    => $rv['id'],
-                    'title' => 'Dr. ' . $rv['praticien_nom'],
+                    'title' => $rv['praticien_nom'],
                     'start' => $rv['date_heure'],
                     'end'   => date('Y-m-d H:i:s', strtotime($rv['date_heure']) + $rv['duree_minutes'] * 60),
-                    'color' => match($rv['statut']) { 'confirme'=>'#10B981','annule'=>'#EF4444','termine'=>'#6B7280',default=>'#3B82F6' },
-                    'extendedProps' => ['motif'=>$rv['motif'],'statut'=>$rv['statut']],
+                    'color' => match($rv['statut']) {
+                        'confirme' => '#10B981',
+                        'annule'   => '#EF4444',
+                        'termine'  => '#6B7280',
+                        default    => '#3B82F6'
+                    },
+                    'extendedProps' => [
+                        'motif'     => $rv['motif'],
+                        'statut'    => $rv['statut'],
+                        'praticien' => $rv['praticien_nom'],
+                    ],
                 ];
             }
-        } else {
-            $events = $model->getForCalendar();
+            echo json_encode($events);
+            exit;
         }
-        echo json_encode(array_values($events));
+
+        // Tous les autres rôles : agenda complet
+        echo json_encode($model->getForCalendar());
         exit;
     }
 
