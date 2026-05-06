@@ -24,7 +24,6 @@ ob_start();
   </div>
 </div>
 
-<!-- MODAL DETAIL RDV -->
 <div class="modal-overlay" id="modal-detail">
   <div class="modal">
     <div class="modal-header">
@@ -35,7 +34,6 @@ ob_start();
   </div>
 </div>
 
-<!-- MODAL NOUVEAU / EDIT RDV -->
 <div class="modal-overlay" id="modal-rdv">
   <div class="modal">
     <div class="modal-header">
@@ -44,33 +42,37 @@ ob_start();
     </div>
     <div class="modal-body">
       <input type="hidden" id="rdv-id" value="">
+      
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Patient</label>
-          <select class="form-control" id="rdv-patient">
+          <label class="form-label" for="rdv-patient">Patient</label>
+          <select class="form-control" id="rdv-patient" required>
             <option value="">— Sélectionner —</option>
-            <?php foreach ($patients as $p): ?>
+            <?php foreach ($patients ?? [] as $p): ?>
             <option value="<?= $p['id'] ?>"><?= e($p['nom'] . ' ' . $p['prenom']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
+        
         <div class="form-group">
-          <label class="form-label">Praticien</label>
-          <select class="form-control" id="rdv-praticien">
+          <label class="form-label" for="rdv-praticien">Praticien</label>
+          <select class="form-control" id="rdv-praticien" required>
             <option value="">— Sélectionner —</option>
-            <?php foreach ($praticiens as $pr): ?>
+            <?php foreach ($praticiens ?? [] as $pr): ?>
             <option value="<?= $pr['id'] ?>"><?= e('Dr. ' . $pr['nom'] . ' ' . $pr['prenom']) ?> (<?= e($pr['role_label']) ?>)</option>
             <?php endforeach; ?>
           </select>
         </div>
       </div>
+      
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Date & Heure</label>
-          <input type="datetime-local" class="form-control" id="rdv-datetime">
+          <label class="form-label" for="rdv-datetime">Date & Heure</label>
+          <input type="datetime-local" class="form-control" id="rdv-datetime" required>
         </div>
+        
         <div class="form-group">
-          <label class="form-label">Durée (minutes)</label>
+          <label class="form-label" for="rdv-duree">Durée</label>
           <select class="form-control" id="rdv-duree">
             <option value="15">15 min</option>
             <option value="30" selected>30 min</option>
@@ -79,12 +81,14 @@ ob_start();
           </select>
         </div>
       </div>
+      
       <div class="form-group">
-        <label class="form-label">Motif</label>
+        <label class="form-label" for="rdv-motif">Motif</label>
         <input type="text" class="form-control" id="rdv-motif" placeholder="Ex: Consultation générale">
       </div>
+      
       <div class="form-group">
-        <label class="form-label">Statut</label>
+        <label class="form-label" for="rdv-statut">Statut</label>
         <select class="form-control" id="rdv-statut">
           <option value="planifie">Planifié</option>
           <option value="confirme">Confirmé</option>
@@ -92,6 +96,7 @@ ob_start();
           <option value="termine">Terminé</option>
         </select>
       </div>
+      
       <div class="flex gap-2" style="justify-content:flex-end; margin-top:8px;">
         <button class="btn btn-ghost" onclick="closeModal('modal-rdv')">Annuler</button>
         <button class="btn btn-danger btn-sm" id="btn-cancel-rdv" style="display:none" onclick="cancelRdv()">Annuler le RDV</button>
@@ -108,7 +113,7 @@ $extraHead = '
 ';
 $extraScript = <<<JS
 <script>
-const canEdit = <?= $canEdit ? 'true' : 'false' ?>;
+const canEdit = {$canEdit};
 
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
@@ -137,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(r => r.json()).then(success).catch(failure);
     },
 
-    // Drag & drop — uniquement si canEdit
+    // Drag & drop
     eventDrop: function(info) {
       if (!canEdit) { info.revert(); return; }
       const start = info.event.start.toISOString().slice(0,19).replace('T',' ');
@@ -152,26 +157,35 @@ document.addEventListener('DOMContentLoaded', function() {
     eventClick: function(info) {
       const p = info.event.extendedProps;
       if (canEdit) {
-        // Ouvre modal édition
         document.getElementById('rdv-id').value = info.event.id;
         document.getElementById('modal-rdv-title').textContent = 'Modifier le rendez-vous';
         document.getElementById('btn-cancel-rdv').style.display = 'inline-flex';
+        
+        document.getElementById('rdv-patient').value = p.patient_id || '';
+        document.getElementById('rdv-praticien').value = p.praticien_id || '';
         document.getElementById('rdv-motif').value = p.motif || '';
         document.getElementById('rdv-statut').value = p.statut || 'planifie';
+
+        // Gérer la date et la durée
         const dt = info.event.start;
         const local = new Date(dt - dt.getTimezoneOffset()*60000).toISOString().slice(0,16);
         document.getElementById('rdv-datetime').value = local;
+
+        // Si une durée a été envoyée dans les paramètres de l'événement, on l'affiche. Sinon, on garde la valeur par défaut ou on prend celle du plugin.
+        if (p.duree_minutes) {
+          document.getElementById('rdv-duree').value = p.duree_minutes;
+        }
+
         openModal('modal-rdv');
       } else {
-        // Patient — lecture seule
-        document.getElementById('modal-detail-body').innerHTML = \`
+        document.getElementById('modal-detail-body').innerHTML = `
           <p><strong>Patient :</strong> \${p.patient || '—'}</p>
           <p style="margin-top:8px"><strong>Praticien :</strong> \${p.praticien || '—'}</p>
           <p style="margin-top:8px"><strong>Motif :</strong> \${p.motif || '—'}</p>
           <p style="margin-top:8px"><strong>Statut :</strong> \${p.statut || '—'}</p>
           <p style="margin-top:8px"><strong>Date :</strong> \${info.event.start.toLocaleString('fr-FR')}</p>
           <p style="margin-top:16px;color:var(--gray-500);font-size:.8rem;">Pour modifier ce rendez-vous, contactez la secrétaire par téléphone.</p>
-        \`;
+        `;
         openModal('modal-detail');
       }
     },
@@ -182,11 +196,18 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('rdv-id').value = '';
       document.getElementById('modal-rdv-title').textContent = 'Nouveau rendez-vous';
       document.getElementById('btn-cancel-rdv').style.display = 'none';
+      document.getElementById('rdv-patient').value = '';
+      document.getElementById('rdv-praticien').value = '';
       document.getElementById('rdv-motif').value = '';
       document.getElementById('rdv-statut').value = 'planifie';
+      
       const dt = info.date;
       const local = new Date(dt - dt.getTimezoneOffset()*60000).toISOString().slice(0,16);
       document.getElementById('rdv-datetime').value = local;
+      
+      // Gère la durée par défaut (30 min sélectionnées) ou laisse telle quelle
+      document.getElementById('rdv-duree').value = '30';
+      
       openModal('modal-rdv');
     }
   });
@@ -197,9 +218,17 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('rdv-id').value = '';
     document.getElementById('modal-rdv-title').textContent = 'Nouveau rendez-vous';
     document.getElementById('btn-cancel-rdv').style.display = 'none';
+    document.getElementById('rdv-patient').value = '';
+    document.getElementById('rdv-praticien').value = '';
+    
+    // Initialisation de la date du jour avec la date et l'heure actuelles (au format YYYY-MM-DDTHH:MM)
+    const now = new Date();
+    const localNow = new Date(now - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    document.getElementById('rdv-datetime').value = localNow;
+    
+    document.getElementById('rdv-duree').value = '30';
     document.getElementById('rdv-motif').value = '';
     document.getElementById('rdv-statut').value = 'planifie';
-    document.getElementById('rdv-datetime').value = '';
     openModal('modal-rdv');
   });
 
