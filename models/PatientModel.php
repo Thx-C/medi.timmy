@@ -28,15 +28,40 @@ class PatientModel {
         return $stmt->fetchAll();
     }
 
-    public function create(array $data): int {
-        $stmt = $this->pdo->prepare("INSERT INTO patients (user_id, nom, prenom, date_naissance, email, telephone, adresse) VALUES (?,?,?,?,?,?,?)");
-        $stmt->execute([
-            $data['user_id'] ?? null, $data['nom'], $data['prenom'],
-            $data['date_naissance'] ?? null, $data['email'] ?? null,
-            $data['telephone'] ?? null, $data['adresse'] ?? null
-        ]);
-        return (int)$this->pdo->lastInsertId();
-    }
+   /**
+ * Insère un nouveau patient dans la base de données
+ * et retourne son ID généré automatiquement.
+ *
+ * @param array $data  Tableau associatif contenant les infos du patient
+ * @return int         L'ID du patient nouvellement créé
+ */
+public function create(array $data): int {
+
+    // Prépare la requête SQL avec des "?" comme marqueurs de position
+    // (évite les injections SQL)
+    $stmt = $this->pdo->prepare("
+        INSERT INTO patients 
+            (user_id, nom, prenom, date_naissance, email, telephone, adresse) 
+        VALUES 
+            (?,?,?,?,?,?,?)
+    ");
+
+    // Exécute la requête en remplaçant chaque "?" par la valeur correspondante
+    // "?? null" = si la clé n'existe pas dans $data, on insère NULL en base
+    $stmt->execute([
+        $data['user_id']        ?? null,  // Lié au compte utilisateur (optionnel)
+        $data['nom'],                     // Nom de famille (obligatoire)
+        $data['prenom'],                  // Prénom (obligatoire)
+        $data['date_naissance'] ?? null,  // Date de naissance (optionnelle)
+        $data['email']          ?? null,  // Email (optionnel)
+        $data['telephone']      ?? null,  // Téléphone (optionnel)
+        $data['adresse']        ?? null,  // Adresse postale (optionnelle)
+    ]);
+
+    // Récupère l'ID auto-incrémenté généré par le INSERT
+    // et le cast en int (lastInsertId() retourne une string par défaut)
+    return (int)$this->pdo->lastInsertId();
+}
 
     public function update(int $id, array $data): void {
         $stmt = $this->pdo->prepare("UPDATE patients SET nom=?, prenom=?, date_naissance=?, email=?, telephone=?, adresse=? WHERE id=?");
