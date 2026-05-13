@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion — MediTimmy</title>
-<link rel="stylesheet" href="<?= BASE_URL ?>/public/css/app.css">
+
+<head> <!-- CONFIG GENERALE DE LA PAGE -->
+    <meta charset="UTF-8">                                                  <!-- Definition du jeux de characters -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Permet le responsive -->
+    <title>Connexion — MediTimmy</title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/app.css">       <!-- Style sheet -->
 </head>
+
 <body>
 <div class="login-wrap">
   <!-- LEFT: Form -->
@@ -23,7 +25,7 @@
       </div>
       <?php endif; ?>
 
-      <form method="POST" action="<?= BASE_URL ?>/index.php?route=login">
+      <form method="POST" action="<?= BASE_URL ?>/index.php?route=login"> ouverture formulaire
         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
 
         <div class="form-group">
@@ -76,4 +78,5 @@
   </div>
 </div>
 </body>
+
 </html>

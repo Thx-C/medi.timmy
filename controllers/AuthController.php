@@ -4,9 +4,9 @@
 class AuthController {
 
     public function login(): void {
-        if (isset($_SESSION['user'])) { redirect('dashboard'); }
+        if (isset($_SESSION['user'])) { redirect('dashboard'); } // force un utilisateur déjà connecté à retourner au dashboard
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {    //
             csrfCheck();
             $username = trim($_POST['username'] ?? '');
             $password = $_POST['password'] ?? '';
@@ -41,11 +41,11 @@ class AuthController {
             }
         }
 
-        view('auth/login');
+        view('auth/login'); //affiche ce formulaire à l'Ecran
     }
 
-    public function logout(): void {
-        session_unset();
+    public function logout(): void { // kill all tokens related to authentication and disconnect
+        session_unset();decompiler
         session_destroy();
         redirect('login');
     }
