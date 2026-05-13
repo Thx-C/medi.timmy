@@ -6,12 +6,12 @@ class AuthController {
     public function login(): void {
         if (isset($_SESSION['user'])) { redirect('dashboard'); } // force un utilisateur déjà connecté à retourner au dashboard
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {    //
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {    // vérifie que la methode de contat sever est en POST. === verifie les valeurs ET leurs types
             csrfCheck();
-            $username = trim($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
+            $username = trim($_POST['username'] ?? ''); //retire les espaces avant et après nom puis considère pour serv
+            $password = $_POST['password'] ?? ''; //considère pdw pour serv
 
-            $model = new UserModel();
+            $model = new UserModel(); // fais appel à UserModel dans models pour en faire un nouveau
             $user = $model->findByUsername($username);
 
             if ($user && password_verify($password, $user['password_hash'])) {
